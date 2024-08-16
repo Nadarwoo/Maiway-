@@ -1,22 +1,52 @@
-### AL ###
-#Template for AL projects for Dynamics 365 Business Central
-#launch.json folder
-.vscode/
-#Cache folder
-.alcache/
-#Symbols folder
-.alpackages/
-#Snapshots folder
-.snapshots/
-#Testing Output folder
-.output/
-#Extension App-file
-*.app
-#Rapid Application Development File
-rad.json
-#Translation Base-file
-*.g.xlf
-#License-file
-*.flf
-#Test results file
-TestResults.xml
+document.addEventListener('DOMContentLoaded', () => {
+  const addToCartButtons = document.querySelectorAll('.add-to-cart');
+  const cartItemsUl = document.getElementById('cart-items');
+  const totalPrice = document.getElementById('total-price');
+  let cartItems = [];
+
+  addToCartButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const productPrice = parseFloat(button.dataset.price);
+      const productName = button.previousElementSibling.innerText;
+
+      const existingItem = cartItems.find(item => item.name === productName);
+
+      if (existingItem) {
+        existingItem.quantity++;
+      } else {
+        cartItems.push({ name: productName, price: productPrice, quantity: 1 });
+      }
+
+      renderCart();
+      calculateTotal();
+    });
+  });
+
+  function renderCart() {
+    cartItemsUl.innerHTML = '';
+
+    cartItems.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span>${item.name}</span><span>${item.price}</span><span>${item.quantity}</span><button class="remove-from-cart" data-name="${item.name}">Remove</button>`;
+      cartItemsUl.appendChild(li);
+    });
+
+    const removeButtons = document.querySelectorAll('.remove-from-cart');
+    removeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const itemName = button.dataset.name;
+        cartItems = cartItems.filter(item => item.name !== itemName);
+        renderCart();
+        calculateTotal();
+      });
+    });
+  }
+
+  function calculateTotal() {
+    let total = 0;
+    cartItems.forEach(item => {
+      total += item.price * item.quantity;
+    });
+    totalPrice.innerText = `Total: $${total}`;
+  }
+});
